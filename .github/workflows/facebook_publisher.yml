@@ -1,0 +1,43 @@
+name: Facebook Publisher CI
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      FB_PROMPT:
+        description: 'Facebook prompt text'
+        required: true
+        default: 'Check out our new features!'
+      FB_COOKIES_JSON:
+        description: 'Facebook cookies as JSON'
+        required: true
+        default: '{"sessionid": "test", "csrftoken": "test"}'
+      FB_PAGE_ID:
+        description: 'Facebook Page ID'
+        required: true
+        default: '123456789'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install python-dotenv
+          
+      - name: Run facebook_publisher
+        env:
+          FB_PROMPT: ${{ inputs.FB_PROMPT }}
+          FB_COOKIES_JSON: ${{ inputs.FB_COOKIES_JSON }}
+          FB_PAGE_ID: ${{ inputs.FB_PAGE_ID }}
+        run: |
+          python facebook_publisher.py
